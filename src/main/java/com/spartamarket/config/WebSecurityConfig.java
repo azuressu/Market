@@ -3,6 +3,7 @@ package com.spartamarket.config;
 import com.spartamarket.filter.JwtFilter;
 import com.spartamarket.filter.LoginFilter;
 import com.spartamarket.jwt.JwtUtil;
+import com.spartamarket.jwt.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -27,6 +29,7 @@ public class WebSecurityConfig {
      */
 
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final UserDetailsServiceImpl userDetailsService;
     private final JwtUtil jwtUtil;
 
     // AuthenticationManager Bean 등록
@@ -35,6 +38,17 @@ public class WebSecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    @Bean
+    public JwtFilter jwtFilter() {
+        return new JwtFilter(jwtUtil, userDetailsService);
+    }
+
+    @Bean
+    public LoginFilter loginFilter() throws Exception {
+        LoginFilter loginFilter = new LoginFilter(jwtUtil);
+        loginFilter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        return loginFilter;
+    }
 
     /**
      * 비밀번호 인코딩 메소드 빈 등록
@@ -42,7 +56,7 @@ public class WebSecurityConfig {
      * 이렇게 함으로써 사용자의 비밀번호가 안전하게 저장되고, 보안을 향상시킴
      */
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -67,10 +81,10 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated());
 
         httpSecurity
-                .addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
+                .addFilterBefore(jwtFilter(), LoginFilter.class);
 
         httpSecurity
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(loginFilter(), UsernamePasswordAuthenticationFilter.class);
 
         /**
          * 세션 설정
