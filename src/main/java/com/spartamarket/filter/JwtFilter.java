@@ -22,6 +22,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -69,7 +70,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     // 인증 객체 생성 메소드
     private Authentication createAuthentication(String username) {
-        UserDetailsServiceImpl userDetailsService = new UserDetailsServiceImpl();
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
