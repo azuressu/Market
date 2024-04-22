@@ -40,4 +40,10 @@ public class Product extends Timestamped{
         this.price = productRequestDto.getPrice();
         this.user = user;
     }
+
+    public void updateProduct(ProductRequestDto productRequestDto) {
+        this.title = productRequestDto.getTitle();
+        this.content = productRequestDto.getContent();
+        this.price = productRequestDto.getPrice();
+    }
 }

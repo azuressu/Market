@@ -1,12 +1,13 @@
 package com.spartamarket.dto;
 
 import com.spartamarket.entity.Product;
+import jakarta.transaction.Status;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductResponseDto {
+public class ProductResponseDto extends StatusResponseDto {
 
     private String title;
     private String content;
