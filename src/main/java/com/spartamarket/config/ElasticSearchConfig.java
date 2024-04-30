@@ -1,6 +1,6 @@
 package com.spartamarket.config;
 
-import com.spartamarket.entity.Productsearch;
+import com.spartamarket.entity.ProductDocument;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackageClasses = Productsearch.class)
+@EnableElasticsearchRepositories(basePackageClasses = ProductDocument.class)
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     @Value("${spring.data.elasticsearch.cluster-name}")
