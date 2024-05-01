@@ -67,7 +67,7 @@ public class JwtUtil {
         logger.info(bearerToken);
 
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(7); // "Bearer " 까지 자름
+            return bearerToken;
         }
 
         return null;

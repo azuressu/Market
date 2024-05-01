@@ -27,7 +27,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         logger.info("JWT 검증 시도");
-        String token = jwtUtil.getTokenFromRequest(request); // getTokenFromHeader()
+        String token = jwtUtil.getJwtFromHeader(request); // getTokenFromHeader()
         logger.info("JWT: " + token);
 
         if (StringUtils.hasText(token)) {
