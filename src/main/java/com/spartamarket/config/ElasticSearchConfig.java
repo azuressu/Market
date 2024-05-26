@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackageClasses = ProductDocument.class)
+@EnableElasticsearchRepositories
 public class ElasticSearchConfig extends ElasticsearchConfiguration {
 
     @Value("${spring.data.elasticsearch.cluster-name}")
@@ -27,6 +27,8 @@ public class ElasticSearchConfig extends ElasticsearchConfiguration {
         return ClientConfiguration.builder()
                 .connectedTo("localhost:9200")
                 .usingSsl(disableSslVerification(), allHostsValid())
+                .withConnectTimeout(10000)
+                .withSocketTimeout(30000)
                 .withBasicAuth(username, password)
                 .build();
     }
