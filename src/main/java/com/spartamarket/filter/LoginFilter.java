@@ -84,7 +84,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(400);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        StatusResponseDto statusResponseDto = new StatusResponseDto("로그인 실패", 400);
+        StatusResponseDto statusResponseDto = new StatusResponseDto("존재하지 않는 회원", 400);
         new ObjectMapper().writeValue(response.getOutputStream(), statusResponseDto);
         /* 협업 시, 클라이언트 쪽에 추가적인 메세지 등이나 데이터를 넘겨주세요 라고한다면
         * 여기서 status만 설정하는 것이 아니라
