@@ -3,8 +3,10 @@ package com.spartamarket.service;
 import com.spartamarket.dto.ProductRequestDto;
 import com.spartamarket.dto.ProductResponseDto;
 import com.spartamarket.entity.Product;
+import com.spartamarket.entity.ProductDocument;
 import com.spartamarket.entity.User;
 import com.spartamarket.jwt.UserDetailsImpl;
+import com.spartamarket.repository.ProductDocumentRepository;
 import com.spartamarket.repository.ProductRepository;
 import com.spartamarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductDocumentRepository productDocumentRepository;
     private final UserRepository userRepository;
 
     // 게시글들 조회
@@ -48,8 +51,11 @@ public class ProductService {
         User user = findUser(userDetails.getUsername());
 
         Product product = new Product(productRequestDto, user);
+        ProductDocument productDocument = new ProductDocument(productRequestDto, user,
+                product.getCreatedAt(), product.getUpdatedAt());
 
         productRepository.save(product);
+        productDocumentRepository.save(productDocument);
         return "물품 등록 성공";
     }
 
