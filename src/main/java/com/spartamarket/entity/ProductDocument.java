@@ -4,6 +4,7 @@ import co.elastic.clients.util.DateTime;
 import com.spartamarket.dto.ProductRequestDto;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import com.spartamarket.entity.User;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,8 +19,7 @@ import java.time.LocalDateTime;
 public class ProductDocument {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Field(name = "title", type = FieldType.Text)
     private String title;
@@ -30,22 +30,24 @@ public class ProductDocument {
     @Field(name = "price", type = FieldType.Integer)
     private Integer price;
 
-    @Field(name = "user")
-    private User user;
+    /*@Field(name = "user", type = FieldType.Integer_Range)
+    private User user;*/
+    @Field(name = "username", type = FieldType.Text)
+    private String username;
 
-    @Field(name = "created_at", type = FieldType.Date)
-    private LocalDateTime createAt;
+    @Field(name = "created_at", type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)
+    private LocalDateTime createdAt;
 
-    @Field(name = "updated_at", type = FieldType.Date)
+    @Field(name = "updated_at", type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)
     private LocalDateTime updatedAt;
 
     public ProductDocument(ProductRequestDto productRequestDto, User user,
                            LocalDateTime createAt, LocalDateTime updatedAt) {
-        this.user = user;
+        this.username = user.getUsername();
         this.title = productRequestDto.getTitle();
         this.content = productRequestDto.getContent();
         this.price = productRequestDto.getPrice();
-        this.createAt = createAt;
+        this.createdAt = createAt;
         this.updatedAt = updatedAt;
     }
 
