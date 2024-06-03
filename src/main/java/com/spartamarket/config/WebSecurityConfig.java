@@ -79,7 +79,8 @@ public class WebSecurityConfig {
         httpSecurity
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/join").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/products").permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity
