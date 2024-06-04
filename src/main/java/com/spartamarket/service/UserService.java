@@ -18,8 +18,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${spartamarket.admin.key}")
-    private String realAdminToken;
+    @Value("${spring.admin.key}")
+    private String savedAdminToken;
 
     public void joinSpartaMarket(JoinRequestDto joinRequestDto) {
         Boolean admin = joinRequestDto.getAdmin();
@@ -30,12 +30,20 @@ public class UserService {
             throw new IllegalArgumentException("중복된 사용자 이름");
         }
 
-        String adminToken;
+        if (!joinRequestDto.getUsername().matches("^[a-z0-9]{4,10}$")) {
+            throw new IllegalArgumentException("아이디 형식에 맞지 않습니다.");
+        }
+
+        if (!joinRequestDto.getPassword().matches("^[a-zA-Z0-9#?!@$%^&*-]{8,15}$")) {
+            throw new IllegalArgumentException("비밀번호 형식에 맞지 않습니다.");
+        }
 
         // 만약 admin이 true 이면,
         if (admin) {
-            adminToken = joinRequestDto.getAdminToken();
-            if (adminToken.equals(realAdminToken)) {
+            String adminToken = joinRequestDto.getAdminToken();
+            log.info("저장된 admin : " + savedAdminToken);
+            log.info("입력받은 admin : " + adminToken);
+            if (savedAdminToken.equals(adminToken)) {
                 roleEnum = UserRoleEnum.ADMIN;
             } else {
                 throw new IllegalArgumentException("잘못된 Admin Token");
@@ -49,5 +57,9 @@ public class UserService {
         userRepository.save(user);
 
         log.info("회원가입 성공");
+    }
+
+    public void setAdminToken(String adminToken) {
+        this.savedAdminToken = adminToken;
     }
 }
