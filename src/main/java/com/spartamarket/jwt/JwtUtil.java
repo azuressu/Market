@@ -1,11 +1,14 @@
 package com.spartamarket.jwt;
 
 import com.spartamarket.entity.UserRoleEnum;
+import com.sun.net.httpserver.HttpsExchange;
+import com.sun.net.httpserver.HttpsParameters;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,6 +19,8 @@ import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Base64;
@@ -60,6 +65,18 @@ public class JwtUtil {
                         .compact();
     }
 
+    // Cookie에 Jwt 추가
+    public void addJwtToCookie(String token, HttpServletResponse response) {
+        token = URLEncoder.encode(token, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+
+        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token);
+        cookie.setPath("/");
+        cookie.setMaxAge(60 * 60);
+        cookie.setSecure(true);
+        response.addCookie(cookie);
+    }
+
+
     // Header에서 JWT 가져오기
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
@@ -74,7 +91,7 @@ public class JwtUtil {
     }
 
     // Request에서 JWT 가져오기
-    public String getTokenFromRequest(HttpServletRequest request) {
+    public String getJwtFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         logger.info(Arrays.toString(cookies));
 
@@ -122,6 +139,23 @@ public class JwtUtil {
         }
         logger.error("Not Found Token, 토큰이 없습니다");
         throw new NullPointerException("Not Found Token, 토큰 없음");
+    }
+
+    // JWT Cookie에서 삭제
+    public void deleteCookie(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return;
+        }
+
+        for (Cookie cookie: cookies) {
+            if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
+                cookie.setValue("");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                response.addCookie(cookie);
+            }
+        }
     }
 
 
