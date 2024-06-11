@@ -95,12 +95,12 @@
     </style>
 
     <!-- Custom styles for this template -->
-    <link href="login.css" rel="stylesheet">
+<!--    <link href="login.css" rel="stylesheet">-->
 </head>
 <body>
 
 <main class="text-center">
-    <form action="/login", enctype="multipart/form-data" ,method="POST">
+    <form action="/login" enctype="multipart/form-data" method="POST">
         <img class="mb-4" src="https://cdn-icons-png.flaticon.com/128/732/732436.png" alt="" width="72" height="72">
         <h1 class="h3 mb-3 fw-normal">로그인</h1>
 
@@ -115,10 +115,10 @@
             </div>
         </div>
 
-        <div class="checkbox mb-3">
-
-        </div>
+        <div class="checkbox mb-3"></div>
         <button class="w-100 btn btn-lg btn-dark" type="submit">로그인</button>
+        <div class="checkbox mb-3"></div>
+        <button class="w-100 btn btn-lg btn-dark" type="button" onclick="location.href='/api/join'">회원가입</button>
         <p class="mt-5 mb-3 text-muted">@ HIGHLIGHT</p>
     </form>
 </main>
