@@ -28,6 +28,9 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
@@ -41,6 +44,7 @@ public class User {
         this.username = joinRequestDto.getUsername();
         this.password = password;
         this.nickname = joinRequestDto.getNickname();
+        this.email = joinRequestDto.getEmail();
         this.role = role;
         this.joindate = LocalDateTime.now();
     }
