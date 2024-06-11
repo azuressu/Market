@@ -5,6 +5,7 @@ import com.spartamarket.filter.LoginFilter;
 import com.spartamarket.jwt.JwtUtil;
 import com.spartamarket.jwt.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration     // configuration 클래스 등록
 @EnableWebSecurity // web security 활성화
 @RequiredArgsConstructor
@@ -67,18 +69,20 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         // CSRF Disable
-        httpSecurity.csrf((auth) -> auth.disable());
-
-        // Form 로그인 방식 Disable
-        httpSecurity.formLogin((auth) -> auth.disable());
+        httpSecurity.csrf((csrf) -> csrf.disable());
 
         // Http Basic 인증 방식 Disable
         httpSecurity.httpBasic((auth) -> auth.disable());
 
+        httpSecurity.formLogin((form) -> form.loginPage("/api/login")
+                .permitAll());
+
+        httpSecurity.logout((logout) -> logout.logoutSuccessUrl("/"));
+
         // 경로별로 인가 작업
         httpSecurity
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()
+                        .requestMatchers("/api/login","/login", "/", "/api/join").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/products").permitAll()
                         .anyRequest().authenticated());
