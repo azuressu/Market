@@ -1,20 +1,16 @@
 package com.spartamarket.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spartamarket.dto.LoginRequestDto;
-import com.spartamarket.dto.StatusResponseDto;
 import com.spartamarket.entity.UserRoleEnum;
 import com.spartamarket.jwt.JwtUtil;
 import com.spartamarket.jwt.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -29,32 +25,44 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        // username과 password 가져오기
-        /* 아래의 코드 혹은 LoginRequestDto를 이용해서
-           LoginRequestDto dto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
-         */
-        /*String username = obtainUsername(request);
-        String password = obtainPassword(request);*/
-        logger.info("로그인 시도");
+        String jwt = jwtUtil.getJwtFromCookie(request);
+        if (StringUtils.hasText(jwt)) {
+            System.out.println("Cookie안의 JWT 인식 = " + jwt);
+            jwtUtil.deleteCookie(request, response);
+        }
 
-        try {
+        // username과 password 가져오기
+        logger.info("로그인 시도");
+        logger.info(obtainUsername(request));
+        logger.info(obtainPassword(request));
+
+        /*try {
             LoginRequestDto loginDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
+
+            String username = loginDto.getUsername();
+            String password = loginDto.getPassword(); */
+            String username = obtainUsername(request);
+            String password = obtainPassword(request);
 
             // Spring Security에서 username과 password를 검증하기 위해 token에 담아주어야 함
             UsernamePasswordAuthenticationToken authenticationToken
                     = new UsernamePasswordAuthenticationToken(
-                            loginDto.getUsername(), loginDto.getPassword(), null);
+                    username, password, null);
 
-            logger.info(authenticationToken);
-            logger.info(loginDto.getUsername() + " " + loginDto.getPassword());
+            logger.info("token principal = " + authenticationToken.getPrincipal());
+            logger.info("token credentials = " + authenticationToken.getCredentials());
+            logger.info("token authorities = " + authenticationToken.getAuthorities());
+
+            logger.info("username = " + username + " / password = " + password);
+
+            Authentication authentication = getAuthenticationManager().authenticate(authenticationToken);
+
             // token에 담은 검증을 위한 AuthenticationManager로 전달
-            return getAuthenticationManager().authenticate(authenticationToken);
-
-        } catch (IOException e) {
+            return authentication;
+        /*} catch (IOException e) {
             logger.error(e.getMessage());
-            throw new IllegalArgumentException("회원을 찾을 수 없습니다.");
-        }
-
+            throw new RuntimeException(e.getMessage());
+        }*/
     }
 
     // 성공 시
@@ -67,13 +75,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // token 가져오기
         String token = jwtUtil.createToken(username, role);
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        jwtUtil.addJwtToCookie(token, response);
 
-        response.setStatus(200);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        StatusResponseDto statusResponseDto = new StatusResponseDto("로그인 성공", 200);
-        new ObjectMapper().writeValue(response.getOutputStream(), statusResponseDto);
+        response.sendRedirect("/");
         logger.info("로그인 성공" + token);
     }
 
@@ -84,12 +88,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(400);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        StatusResponseDto statusResponseDto = new StatusResponseDto("존재하지 않는 회원", 400);
-        new ObjectMapper().writeValue(response.getOutputStream(), statusResponseDto);
-        /* 협업 시, 클라이언트 쪽에 추가적인 메세지 등이나 데이터를 넘겨주세요 라고한다면
-        * 여기서 status만 설정하는 것이 아니라
-        * response 객체, content-type 그리고 메시지 등을 담아서 보낼 수 있음
-        * */
+        response.sendRedirect("/api/login");
     }
 
 
