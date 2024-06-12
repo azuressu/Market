@@ -5,7 +5,6 @@ import com.spartamarket.dto.ProductResponseDto;
 import com.spartamarket.dto.StatusResponseDto;
 import com.spartamarket.jwt.UserDetailsImpl;
 import com.spartamarket.service.ProductService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,9 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Controller
@@ -38,7 +36,7 @@ public class ProductController {
         ProductResponseDto productResponseDto;
         try {
             productResponseDto = productService.getOneProduct(productId);
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchElementException e) {
             return ResponseEntity.badRequest().body(new StatusResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
         return ResponseEntity.ok().body(productResponseDto);
@@ -56,7 +54,7 @@ public class ProductController {
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         String returnStatus;
         try {
-            returnStatus = productService.createProduct(productRequestDto, userDetails);
+            returnStatus = productService.createProduct(productRequestDto, userDetails.getUsername());
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new StatusResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
