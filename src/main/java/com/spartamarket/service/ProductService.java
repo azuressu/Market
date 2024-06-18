@@ -11,17 +11,19 @@ import com.spartamarket.repository.ProductRepository;
 import com.spartamarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.NoSuchElementException;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -33,16 +35,17 @@ public class ProductService {
     private final ProductDocumentRepository productDocumentRepository;
     private final UserRepository userRepository;
 
+    @Value("${spring.servlet.multipart.location}")
+    private String FILE_PATH;
+
     // 게시글들 조회
     public List<ProductResponseDto> getProductList() {
-//        List<Product> productList = productRepository.findAll();
+        // List<Product> productList = productRepository.findAll();
         List<ProductDocument> productList = StreamSupport
                 .stream(productDocumentRepository.findAll().spliterator(), false)
                 .toList();
 
-        /*StreamSupport
-  .stream(iterable.spliterator(), false)
-  .collect(Collectors.toList());*/
+        /*StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());*/
         List<ProductResponseDto> productResponseDtos = new ArrayList<>();
 
         for (ProductDocument product : productList) {
@@ -73,17 +76,30 @@ public class ProductService {
 
     // 게시글 단건 조회
     public ProductResponseDto getOneProduct(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글"));
-
+        Product product = findProduct(productId);
         return new ProductResponseDto(product);
     }
 
     // 게시글 작성
-    public String createProduct(ProductRequestDto productRequestDto, UserDetailsImpl userDetails) {
-        User user = findUser(userDetails.getUsername());
+    public String createProduct(ProductRequestDto productRequestDto, String username) {
+        User user = findUser(username);
 
-        Product product = new Product(productRequestDto, user);
+        log.info(productRequestDto.getFile().getOriginalFilename());
+
+        Product product;
+
+        if (productRequestDto.getFile().isEmpty()) {
+            product = new Product(productRequestDto, user);
+        } else {
+            String filepath = FILE_PATH + "/" + productRequestDto.getFile().getOriginalFilename();
+            log.info(filepath);
+            product = new Product(productRequestDto, user, filepath);
+            try {
+                productRequestDto.getFile().transferTo(new File(filepath));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         productRepository.save(product);
 
@@ -133,6 +149,6 @@ public class ProductService {
     // 물품 찾기
     private Product findProduct(Long productId) {
         return productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException());
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 물품"));
     }
 }

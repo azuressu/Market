@@ -50,8 +50,9 @@ public class ProductController {
     }
 
     @PostMapping("/products")
-    public ResponseEntity<StatusResponseDto> createProduct(@RequestBody ProductRequestDto productRequestDto,
+    public ResponseEntity<StatusResponseDto> createProduct(ProductRequestDto productRequestDto,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info(userDetails.getUsername());
         String returnStatus;
         try {
             returnStatus = productService.createProduct(productRequestDto, userDetails.getUsername());
