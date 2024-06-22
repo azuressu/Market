@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 @Getter
 @NoArgsConstructor
 public class ProductResponseDto extends StatusResponseDto {
@@ -17,13 +20,15 @@ public class ProductResponseDto extends StatusResponseDto {
     private Integer price;
     private String username;
     private String createdAt;
+    private String filepath;
 
     public ProductResponseDto(Product product) {
         this.title = product.getTitle();
         this.content = product.getContent();
         this.price = product.getPrice();
         this.username = product.getUser().getUsername();
-        this.createdAt = String.valueOf(product.getCreatedAt());
+        this.createdAt = product.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        if (product.getFilepath() != null) this.filepath = product.getFilepath();
     }
 
     public ProductResponseDto(ProductDocument productDocument) {
@@ -31,7 +36,7 @@ public class ProductResponseDto extends StatusResponseDto {
         this.content = productDocument.getContent();
         this.price = productDocument.getPrice();
         this.username = productDocument.getUsername();
-        this.createdAt = String.valueOf(productDocument.getCreatedAt());
+        this.createdAt = productDocument.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
 }
