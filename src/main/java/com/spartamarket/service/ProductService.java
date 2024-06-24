@@ -3,7 +3,6 @@ package com.spartamarket.service;
 import com.spartamarket.dto.ProductRequestDto;
 import com.spartamarket.dto.ProductResponseDto;
 import com.spartamarket.entity.Product;
-import com.spartamarket.entity.ProductDocument;
 import com.spartamarket.entity.User;
 import com.spartamarket.jwt.UserDetailsImpl;
 import com.spartamarket.repository.ProductDocumentRepository;
@@ -18,13 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
@@ -35,21 +30,14 @@ public class ProductService {
     private final ProductDocumentRepository productDocumentRepository;
     private final UserRepository userRepository;
 
-    @Value("${spring.servlet.multipart.location}")
-    private String FILE_PATH;
-
-    // 게시글들 조회
+    // 게시글 전체 조회
     public List<ProductResponseDto> getProductList() {
-        // List<Product> productList = productRepository.findAll();
-        List<ProductDocument> productList = StreamSupport
-                .stream(productDocumentRepository.findAll().spliterator(), false)
-                .toList();
+        List<Product> productList = productRepository.findAll();
 
-        /*StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());*/
         List<ProductResponseDto> productResponseDtos = new ArrayList<>();
 
-        for (ProductDocument product : productList) {
-            productResponseDtos.add(new ProductResponseDto(product));
+        for (Product product: productList) {
+             productResponseDtos.add(new ProductResponseDto(product));
         }
 
         return productResponseDtos;
@@ -60,13 +48,13 @@ public class ProductService {
         log.info("Service 넘어온 검색어: " + title);
 
         // ElasticSearch 검색
-        List<ProductDocument> searchHits = productDocumentRepository.findByTitle(title);
+        List<Product> searchProducts = productRepository.findByTitle(title);
 
         // 빈 ArrayList 생성
         ArrayList<ProductResponseDto> products = new ArrayList<>();
 
         // 결과 내용 ProductResponseDto에 담기
-        for (ProductDocument p : searchHits) {
+        for (Product p : searchProducts) {
             ProductResponseDto productResponseDto = new ProductResponseDto(p);
             products.add(productResponseDto);
         }
@@ -84,28 +72,10 @@ public class ProductService {
     public String createProduct(ProductRequestDto productRequestDto, String username) {
         User user = findUser(username);
 
-        log.info(productRequestDto.getFile().getOriginalFilename());
-
-        Product product;
-
-        if (productRequestDto.getFile().isEmpty()) {
-            product = new Product(productRequestDto, user);
-        } else {
-            String filepath = FILE_PATH + "/" + productRequestDto.getFile().getOriginalFilename();
-            log.info(filepath);
-            product = new Product(productRequestDto, user, filepath);
-            try {
-                productRequestDto.getFile().transferTo(new File(filepath));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        Product product = new Product(productRequestDto, user);
 
         productRepository.save(product);
-
-        ProductDocument productDocument = new ProductDocument(productRequestDto, user, product.getCreatedAt(), product.getUpdatedAt());
-        productDocumentRepository.save(productDocument);
-        return "물품 등록 성공";
+        return "/api/products/" + product.getId();
     }
 
     // 게시글 수정
@@ -120,7 +90,7 @@ public class ProductService {
 
         product.updateProduct(productRequestDto);
 
-        return "게시글 수정 성공";
+        return "/api/products/" + product.getId();
     }
 
     // 게시글 삭제
@@ -132,12 +102,7 @@ public class ProductService {
             throw new IllegalArgumentException("글 작성자가 아닙니다");
         }
 
-        return "게시글 삭제 성공";
-    }
-
-    // 게시글 전체 삭제
-    public void deleteProductDocument() {
-        productDocumentRepository.deleteAll();
+        return "/api/products/";
     }
 
     // 사용자 찾기
@@ -150,5 +115,28 @@ public class ProductService {
     private Product findProduct(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 물품"));
+    }
+
+    public Boolean isUser(UserDetailsImpl userDetails, String username) {
+        if (userDetails == null) {
+            return false;
+        }
+        if (!userDetails.getUsername().equals(username)) {
+            return false;
+        }
+        return true;
+    }
+
+    public Boolean isUser(UserDetailsImpl userDetails, Long productId) {
+        if (userDetails == null) {
+            return false;
+        }
+
+        Product product = findProduct(productId);
+        String username = product.getUser().getUsername();
+        if (!userDetails.getUsername().equals(username)) {
+            return false;
+        }
+        return true;
     }
 }

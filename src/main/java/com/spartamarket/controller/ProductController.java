@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,75 +26,96 @@ public class ProductController {
 
     private final ProductService productService;
 
+    // 게시글 전체 조회
     @GetMapping("/products")
     public ResponseEntity<List<ProductResponseDto>> getProductList() {
         List<ProductResponseDto> productResponseDtos = productService.getProductList();
         return ResponseEntity.ok().body(productResponseDtos);
     }
 
-    @GetMapping("/products/productId")
-    public ResponseEntity<StatusResponseDto> getOneProduct(@RequestParam Long productId) {
-        ProductResponseDto productResponseDto;
+    // 게시글 단건 조회
+    @GetMapping("/products/{productId}")
+    public String getOneProduct(@PathVariable Long productId, Model model,
+                                @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("ID: " + productId.toString());
+        ProductResponseDto productResponseDto = null;
         try {
             productResponseDto = productService.getOneProduct(productId);
+            model.addAttribute("product", productResponseDto);
+            Boolean isUser = productService.isUser(userDetails, productResponseDto.getUsername());
+            model.addAttribute("isUser", isUser);
         } catch (NoSuchElementException e) {
-            return ResponseEntity.badRequest().body(new StatusResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+            ResponseEntity.badRequest().body(new StatusResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
-        return ResponseEntity.ok().body(productResponseDto);
+        return "product";
     }
 
+    // 게시글 제목 검색
     @GetMapping("/products/search")
-    public ResponseEntity<List<ProductResponseDto>> getSearchPosts(@RequestParam String title) {
+    public ResponseEntity<List<ProductResponseDto>> getSearchProducts(@RequestParam String title) {
         log.info("입력받은 검색어: " + title);
         List<ProductResponseDto> productResponseDtos = productService.getSearchPosts(title);
         return ResponseEntity.ok().body(productResponseDtos);
     }
 
+    // 게시글 생성
     @PostMapping("/products")
     public ResponseEntity<StatusResponseDto> createProduct(ProductRequestDto productRequestDto,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         log.info(userDetails.getUsername());
-        String returnStatus;
+        String returnURL;
         try {
-            returnStatus = productService.createProduct(productRequestDto, userDetails.getUsername());
+            returnURL = productService.createProduct(productRequestDto, userDetails.getUsername());
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.badRequest().body(new StatusResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
-        return ResponseEntity.status(201).body(new StatusResponseDto(returnStatus, HttpStatus.CREATED.value()));
+        return ResponseEntity.status(201).body(new StatusResponseDto(returnURL, HttpStatus.CREATED.value()));
     }
 
-    @PutMapping("/products/productId")
-    public ResponseEntity<StatusResponseDto> updateProduct(@RequestBody ProductRequestDto productRequestDto,
-                                                           @RequestParam Long productId,
+    // 게시글 수정 페이지
+    @GetMapping("/uproducts")
+    public String updateProductPage(@RequestParam Long productId,
+                                    @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                    Model model) {
+        Boolean isUser = productService.isUser(userDetails, productId);
+        if (isUser) {
+            ProductResponseDto productResponseDto = productService.getOneProduct(productId);
+            model.addAttribute("product", productResponseDto);
+            return "updateproduct";
+
+        } else {
+            return "redirect:/api/products/" + productId;
+        }
+    }
+
+    // 게시글 수정
+    @PutMapping("/products/{productId}")
+    public ResponseEntity<StatusResponseDto> updateProduct(ProductRequestDto productRequestDto,
+                                                           @PathVariable Long productId,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        log.info("productId = " + productId);
         String returnStatus;
         try {
             returnStatus = productService.updateProduct(productRequestDto, productId, userDetails);
-        } catch (UsernameNotFoundException | IllegalArgumentException e) {
+        } catch (UsernameNotFoundException | NoSuchElementException e) {
             return ResponseEntity.badRequest().body(new StatusResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
 
         return ResponseEntity.ok().body(new StatusResponseDto(returnStatus, HttpStatus.OK.value()));
     }
 
-    @DeleteMapping("/products/productId")
-    public ResponseEntity<StatusResponseDto> deleteProduct(@RequestParam Long productId,
+    // 게시글 삭제
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<StatusResponseDto> deleteProduct(@PathVariable Long productId,
                                                            @AuthenticationPrincipal UserDetailsImpl userDetails) {
         String returnStatus;
         try {
             returnStatus = productService.deleteProduct(productId, userDetails);
-        } catch (UsernameNotFoundException | IllegalArgumentException e) {
+        } catch (UsernameNotFoundException | NoSuchElementException e) {
             return ResponseEntity.badRequest().body(new StatusResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
 
         return ResponseEntity.ok().body(new StatusResponseDto(returnStatus, HttpStatus.OK.value()));
-    }
-
-    // 물품 전체 삭제
-    @DeleteMapping("/products")
-    public ResponseEntity<StatusResponseDto> deleteProductDocument() {
-        productService.deleteProductDocument();
-        return ResponseEntity.ok().body(new StatusResponseDto("삭제 완료", HttpStatus.OK.value()));
     }
 
 }
