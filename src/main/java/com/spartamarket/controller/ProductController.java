@@ -28,9 +28,10 @@ public class ProductController {
 
     // 게시글 전체 조회
     @GetMapping("/products")
-    public ResponseEntity<List<ProductResponseDto>> getProductList() {
+    public String getProductList(Model model) {
         List<ProductResponseDto> productResponseDtos = productService.getProductList();
-        return ResponseEntity.ok().body(productResponseDtos);
+        model.addAttribute("products", productResponseDtos);
+        return "products";
     }
 
     // 게시글 단건 조회
