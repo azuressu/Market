@@ -182,8 +182,25 @@
             <div class="bottom_buttons">
                 <button th:if="${isUser}" type="button" class="btn btn-dark backBtn" id="updateBtn">수정하기</button>
                 <button type="button" class="btn btn-dark backBtn" id="backBtn">목록</button>
-                <button th:if="${isUser}" type="button" class="btn btn-dark backBtn" id="deleteBtn">삭제하기</button>
+                <button th:if="${isUser}" type="button" class="btn btn-dark backBtn" data-bs-target="#modalToggle" data-bs-toggle="modal">삭제하기</button>
+            </div>
 
+            <div class="modal fade" tabindex="-1" id="modalToggle">
+                <div class="modal-dialog modal-dialog-centered" >
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">글 삭제</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>정말 삭제하시겠습니까 ?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="deleteBtn">삭제하기</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -195,6 +212,7 @@
 
     const updateBtn = document.getElementById("updateBtn");
     const deleteBtn = document.getElementById("deleteBtn");
+    const backBtn = document.getElementById("backBtn");
 
     updateBtn.addEventListener('click', function() {
         let productId = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
@@ -214,6 +232,10 @@
             window.location.href = response.data.message;
         }).catch((error) => console.log(error.response));
     });
+
+    backBtn.addEventListener('click', function() {
+        window.location.href = "/api/products";
+    })
 
 </script>
 </html>
