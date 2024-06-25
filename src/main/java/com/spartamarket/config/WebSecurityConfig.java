@@ -84,7 +84,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/api/login","/login", "/", "/api/join").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/products").permitAll()
+                        .requestMatchers("/api/products").permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity
