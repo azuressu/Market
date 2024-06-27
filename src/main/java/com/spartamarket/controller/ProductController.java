@@ -7,6 +7,7 @@ import com.spartamarket.jwt.UserDetailsImpl;
 import com.spartamarket.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,8 +29,8 @@ public class ProductController {
 
     // 게시글 전체 조회
     @GetMapping("/products")
-    public String getProductList(Model model) {
-        List<ProductResponseDto> productResponseDtos = productService.getProductList();
+    public String getProductList(Model model, @RequestParam(value="page", defaultValue = "0") Integer page) {
+        Page<ProductResponseDto> productResponseDtos = productService.getProductList(page);
         model.addAttribute("products", productResponseDtos);
         return "products";
     }

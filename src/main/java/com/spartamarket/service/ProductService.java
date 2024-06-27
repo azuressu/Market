@@ -5,18 +5,17 @@ import com.spartamarket.dto.ProductResponseDto;
 import com.spartamarket.entity.Product;
 import com.spartamarket.entity.User;
 import com.spartamarket.jwt.UserDetailsImpl;
-import com.spartamarket.repository.ProductDocumentRepository;
 import com.spartamarket.repository.ProductRepository;
 import com.spartamarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,20 +26,14 @@ import java.util.NoSuchElementException;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductDocumentRepository productDocumentRepository;
     private final UserRepository userRepository;
 
     // 게시글 전체 조회
-    public List<ProductResponseDto> getProductList() {
-        List<Product> productList = productRepository.findAll();
+    public Page<ProductResponseDto> getProductList(Integer page) {
+        Pageable pageable = PageRequest.of(page, 5);
+        Page<Product> productList = productRepository.findAll(pageable);
 
-        List<ProductResponseDto> productResponseDtos = new ArrayList<>();
-
-        for (Product product: productList) {
-             productResponseDtos.add(new ProductResponseDto(product));
-        }
-
-        return productResponseDtos;
+        return productList.map(ProductResponseDto::new);
     }
 
     // 게시글 검색
