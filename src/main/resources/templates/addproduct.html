@@ -122,7 +122,7 @@
 
         <div class="bottom_buttons">
             <button type="button" class="btn btn-dark productBtn" id="productBtn" onclick="productAdd()">작성하기</button>
-            <button type="button" class="btn btn-dark backBtn" id="backBtn">뒤로가기</button>
+            <button type="button" class="btn btn-dark backBtn" id="backBtn" onclick="gobackToList()">뒤로가기</button>
         </div>
     </div>
 
@@ -131,6 +131,9 @@
 </body>
 
 <script>
+    function gobackToList() {
+        window.location.href = "/api/products";
+    }
 
     // ajax 정보 보내기
     function productAdd() {
