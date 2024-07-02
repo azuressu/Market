@@ -85,9 +85,10 @@
 <body>
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand">HighLight</a>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2 searchform" type="search" placeholder="검색" aria-label="검색">
+            <a class="navbar-brand">MARKET</a>
+            <form class="d-flex" role="search" action="/api/products/search" method="GET">
+                <input class="form-control me-2 searchform" type="search"
+                       placeholder="검색" aria-label="검색" name="search">
                 <button class="btn btn-outline-light searchbutton" type="submit">검색</button>
             </form>
         </div>
