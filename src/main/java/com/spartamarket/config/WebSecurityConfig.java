@@ -82,9 +82,9 @@ public class WebSecurityConfig {
         // 경로별로 인가 작업
         httpSecurity
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/login","/login", "/", "/api/join").permitAll()
+                        .requestMatchers("/", "/api/login","/login", "/api/join").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers("/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity
