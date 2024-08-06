@@ -18,11 +18,6 @@ public class ViewController {
         return "index";
     }
 
-    @GetMapping("/api/product")
-    public String productPage() {
-        return "products";
-    }
-
     @GetMapping("/api/join")
     public String joinPage() {
         return "join";
@@ -33,5 +28,14 @@ public class ViewController {
         return "login";
     }
 
+    @GetMapping("/api/product")
+    public String addproductPage() {
+        return "addproduct";
+    }
+
+    @GetMapping("/api/productdocument")
+    public String addproductdocumentPage() {
+        return "addproductdocument";
+    }
 
 }
