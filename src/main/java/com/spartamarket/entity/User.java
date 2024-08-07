@@ -38,15 +38,12 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    private LocalDateTime joindate;
-
     public User(JoinRequestDto joinRequestDto, String password, UserRoleEnum role) {
         this.username = joinRequestDto.getUsername();
         this.password = password;
         this.nickname = joinRequestDto.getNickname();
         this.email = joinRequestDto.getEmail();
         this.role = role;
-        this.joindate = LocalDateTime.now();
     }
 
 
