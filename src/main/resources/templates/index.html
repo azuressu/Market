@@ -101,8 +101,8 @@
     <div class="bottom-form">
         <button type="button" class="btn btn-dark loginBtn" id="loginBtn" onclick="gotoLogin()">로그인</button>
         <button type="button" class="btn btn-dark joinBtn" id="joinBtn" onclick="gotoJoin()">회원가입</button>
-        <button type="button" class="btn btn-dark productBtn" id="productBtn" onclick="gotoProduct()">product page</button>
-        <button type="button" class="btn btn-dark productdocumentBtn" id="productdocumentBtn">product document page</button>
+        <button type="button" class="btn btn-dark productBtn" id="productBtn" onclick="gotoProduct()">Product Page</button>
+        <button type="button" class="btn btn-dark productdocumentBtn" id="productdocumentBtn" onclick="gotoProductDocument()">Productdocument Page</button>
     </div>
 
 </div>
@@ -121,6 +121,10 @@
 
     function gotoProduct() {
         window.location.href = "/api/products";
+    }
+
+    function gotoProductDocument() {
+        window.location.href = "/api/productdocuments";
     }
 
 </script>
