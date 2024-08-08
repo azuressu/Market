@@ -3,7 +3,11 @@ package com.spartamarket.service;
 import com.spartamarket.dto.JoinRequestDto;
 import com.spartamarket.entity.User;
 import com.spartamarket.entity.UserRoleEnum;
+import com.spartamarket.jwt.JwtUtil;
 import com.spartamarket.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +24,12 @@ public class UserService {
 
     @Value("${spring.admin.key}")
     private String savedAdminToken;
+
+    private final JwtUtil jwtUtil;
+
+    public void deleteToken(HttpServletRequest request, HttpServletResponse response) {
+        jwtUtil.deleteCookie(request, response);
+    }
 
     public void joinSpartaMarket(JoinRequestDto joinRequestDto) {
         Boolean admin = joinRequestDto.getAdmin();

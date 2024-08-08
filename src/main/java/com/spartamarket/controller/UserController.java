@@ -2,6 +2,9 @@ package com.spartamarket.controller;
 
 import com.spartamarket.dto.JoinRequestDto;
 import com.spartamarket.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -14,7 +17,10 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/api/join")
-    public String joinSpartaMarket(@Valid JoinRequestDto joinRequestDto) {
+    public String joinSpartaMarket(@Valid JoinRequestDto joinRequestDto,
+                                   HttpServletRequest request, HttpServletResponse response) {
+        userService.deleteToken(request, response);
+
         try {
             userService.joinSpartaMarket(joinRequestDto);
         } catch (IllegalArgumentException e) {
