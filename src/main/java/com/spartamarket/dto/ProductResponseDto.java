@@ -2,20 +2,16 @@ package com.spartamarket.dto;
 
 import com.spartamarket.entity.Product;
 import com.spartamarket.entity.ProductDocument;
-import jakarta.transaction.Status;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.SearchHits;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @NoArgsConstructor
 public class ProductResponseDto extends StatusResponseDto {
 
-    private Long id;
+    private String id;
     private String title;
     private String content;
     private Integer price;
@@ -23,7 +19,7 @@ public class ProductResponseDto extends StatusResponseDto {
     private String createdAt;
 
     public ProductResponseDto(Product product) {
-        this.id = product.getId();
+        this.id = String.valueOf(product.getId());
         this.title = product.getTitle();
         this.content = product.getContent().length() <= 15 ? product.getContent() : product.getContent().substring(15);
         this.price = product.getPrice();
@@ -32,11 +28,11 @@ public class ProductResponseDto extends StatusResponseDto {
     }
 
     public ProductResponseDto(ProductDocument productDocument) {
-        this.id = Long.valueOf(productDocument.getId());
+        this.id = productDocument.getId();
         this.title = productDocument.getTitle();
         this.content = productDocument.getContent();
         this.price = productDocument.getPrice();
-        this.username = productDocument.getUsername();
+        this.username = productDocument.getUser().getUsername();
         this.createdAt = productDocument.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
