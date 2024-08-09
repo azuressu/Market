@@ -146,7 +146,7 @@
     // id: validationPassword
     document.querySelector("#floatingPassword").addEventListener("input", function(){
         const inputPassword = this.value;
-        const regeq = /^[a-zA-Z0-9#?!@$%^&*-]{4,10}$/ ;
+        const regeq = /^[a-zA-Z0-9#?!@$%^&*-]{8,15}$/ ;
         isinputPassword = regeq.exec(inputPassword);
         if(isinputPassword){
             this.classList.remove("is-invalid");
