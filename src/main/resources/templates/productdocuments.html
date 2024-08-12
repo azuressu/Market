@@ -97,12 +97,12 @@
 <div class="bottom">
 
     <div class="bottom-buttons">
-        <button type="button" class="btn btn-dark productBtn" id="productBtn" onclick="productAdd()">작성하기</button>
+        <button type="button" class="btn btn-dark productBtn" id="productBtn" onclick="productdocumentAdd()">작성하기</button>
     </div>
 
     <!-- 불러올 물품 목록 -->
     <div class="list-group list-group-flush">
-        <a th:each="product : ${products}" th:href="@{/api/products/{productId}(productId=${product.id})}" class="list-group-item list-group-item-action" aria-current="true">
+        <a th:each="product : ${productdocuments}" th:href="@{/api/productdocuments/{productId}(productId=${product.id})}" class="list-group-item list-group-item-action" aria-current="true">
             <div class="d-flex w-100 justify-content-between">
                 <h5 class="mb-1" th:text="${product.title}"></h5>
                 <small class="text-muted" th:text="${product.createdAt}"></small>
@@ -113,27 +113,27 @@
     </div> <!--list-group-flush-->
 
     <!-- 페이지네이션 -->
-    <div class="paging" th:if="${!products.isEmpty()}">
+    <div class="paging" th:if="${!productdocuments.isEmpty()}">
         <nav aria-label="Page navigation">
             <ul class="pagination">
                 <!-- 이전 -->
-                <li class="page-item" th:classappend="${!products.hasPrevious} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${products.number-1}|}" aria-label="Previous">
+                <li class="page-item" th:classappend="${!productdocuments.hasPrevious} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${productdocuments.number-1}|}" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
 
                 <!-- 페이지 -->
                 <li class="page-item"
-                    th:each="page : ${#numbers.sequence(0, products.totalPages-1)}"
-                    th:if="${page >= products.number-5 and page<=products.number+5}"
-                    th:classappend="${page == products.number} ? 'active'">
+                    th:each="page : ${#numbers.sequence(0, productdocuments.totalPages-1)}"
+                    th:if="${page >= productdocuments.number-5 and page<=productdocuments.number+5}"
+                    th:classappend="${page == productdocuments.number} ? 'active'">
                     <a class="page-link" th:text="${page+1}" th:href="@{|?page=${page}|}"></a>
                 </li>
 
                 <!-- 이후 -->
-                <li class="page-item" th:classappend="${!products.hasNext} ? 'disabled'" >
-                    <a class="page-link" th:href="@{|?page=${products.number+1}|}" aria-label="Next">
+                <li class="page-item" th:classappend="${!productdocuments.hasNext} ? 'disabled'" >
+                    <a class="page-link" th:href="@{|?page=${productdocuments.number+1}|}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
@@ -146,7 +146,7 @@
 
 </body>
 <script>
-    function productAdd() {
+    function productdocumentAdd() {
         window.location.href = "/api/productdocument";
     }
 </script>
