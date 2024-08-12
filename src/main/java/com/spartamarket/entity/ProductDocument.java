@@ -37,9 +37,9 @@ public class ProductDocument extends ElasticsearchTimestamped {
     }
 
     public void updateProductDocument(ProductRequestDto productRequestDto) {
-        this.title = productRequestDto.getTitle().equals("") ? this.title : productRequestDto.getTitle();
-        this.content = productRequestDto.getContent().equals("") ? this.content : productRequestDto.getContent();
-        this.price = productRequestDto.getPrice() == null ? this.price : productRequestDto.getPrice();
+        this.title = productRequestDto.getTitle();
+        this.content = productRequestDto.getContent();
+        this.price = productRequestDto.getPrice();
     }
 
 }
