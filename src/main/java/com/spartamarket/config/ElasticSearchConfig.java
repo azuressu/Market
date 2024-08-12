@@ -1,6 +1,5 @@
 package com.spartamarket.config;
 
-import com.spartamarket.entity.ProductDocument;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
