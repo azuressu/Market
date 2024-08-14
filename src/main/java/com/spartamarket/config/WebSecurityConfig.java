@@ -26,8 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     /**
-     * SecurityConfig
-     * 스프링 세큐리티의 인가 및 설정을 담당하는 클래스
+     * SecurityConfig : 스프링 세큐리티의 인가 및 설정을 담당하는 클래스
      * SecurityConfig 구현은 Security 버전별로 상이하므로 주의하기
      */
 
@@ -84,7 +83,9 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/api/login","/login", "/api/join").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productdocuments/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productdocuments").permitAll()
                         .anyRequest().authenticated());
 
         httpSecurity
