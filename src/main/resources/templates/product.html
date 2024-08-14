@@ -160,7 +160,7 @@
     <div class="bottom">
 
         <div class="bottom-form">
-            <h4 class="title">제목</h4>
+            <h4 class="title" th:text="${product.title}"></h4>
 
             <div class="product-title">
                 <img src="https://cdn-icons-png.flaticon.com/128/732/732487.png" class="userpic"/>
@@ -173,14 +173,14 @@
             <div class="product-content">
                 <p th:text="${product.price}" class="productprice">가격</p>
 
-                <p th:text="${product.content}" class="content">
+                <p th:utext="${product.content}" class="content">
                     내용
                 </p>
 
             </div>
 
             <div class="bottom_buttons">
-                <button th:if="${isUser}" type="button" class="btn btn-dark backBtn" id="updateBtn">수정하기</button>
+                <button th:if="${isUser}" type="button" class="btn btn-dark backBtn" id="updateBtn" onclick="updateProduct()">수정하기</button>
                 <button type="button" class="btn btn-dark backBtn" id="backBtn">목록</button>
                 <button th:if="${isUser}" type="button" class="btn btn-dark backBtn" data-bs-target="#modalToggle" data-bs-toggle="modal">삭제하기</button>
             </div>
@@ -196,7 +196,7 @@
                             <p>정말 삭제하시겠습니까 ?</p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" id="deleteBtn">삭제하기</button>
+                            <button type="button" class="btn btn-danger" id="deleteBtn" onclick="deleteProduct()">삭제하기</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                         </div>
                     </div>
@@ -210,17 +210,14 @@
 
 <script>
 
-    const updateBtn = document.getElementById("updateBtn");
-    const deleteBtn = document.getElementById("deleteBtn");
-    const backBtn = document.getElementById("backBtn");
-
-    updateBtn.addEventListener('click', function() {
+    function updateProduct() {
         let productId = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
-        window.location.href = "/api/uproducts?productId=" + productId;
-    });
+        window.location.href = "/api/product?productId=" + productId;
+    }
 
-    deleteBtn.addEventListener('click', function() {
+    function deleteProduct() {
         let productId = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
+        console.log(productId);
 
         axios({
             method: "DELETE",
@@ -229,9 +226,12 @@
                 'Content-Type' : "multipart/form-data",
             },
         }).then((response) => {
-            window.location.href = response.data.message;
+            console.log(response.data.message);
+//            window.location.href = response.data.message;
         }).catch((error) => console.log(error.response));
-    });
+    }
+
+    const backBtn = document.getElementById("backBtn");
 
     backBtn.addEventListener('click', function() {
         window.location.href = "/api/products";
