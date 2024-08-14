@@ -21,7 +21,7 @@ public class ProductResponseDto extends StatusResponseDto {
     public ProductResponseDto(Product product) {
         this.id = String.valueOf(product.getId());
         this.title = product.getTitle();
-        this.content = product.getContent().length() <= 15 ? product.getContent() : product.getContent().substring(15);
+        this.content = product.getContent().length() <= 15 ? product.getContent() : product.getContent().substring(0, 15);
         this.price = product.getPrice();
         this.username = product.getUser().getUsername();
         this.createdAt = product.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -30,7 +30,7 @@ public class ProductResponseDto extends StatusResponseDto {
     public ProductResponseDto(ProductDocument productDocument) {
         this.id = productDocument.getId();
         this.title = productDocument.getTitle();
-        this.content = productDocument.getContent();
+        this.content = productDocument.getContent().length() <= 15 ? productDocument.getContent() : productDocument.getContent().substring(0, 15);
         this.price = productDocument.getPrice();
         this.username = productDocument.getUser().getUsername();
         this.createdAt = productDocument.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
