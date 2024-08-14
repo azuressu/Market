@@ -2,6 +2,7 @@ package com.spartamarket.controller;
 
 import com.spartamarket.dto.ProductRequestDto;
 import com.spartamarket.dto.ProductResponseDto;
+import com.spartamarket.dto.ProductsResponseDto;
 import com.spartamarket.dto.StatusResponseDto;
 import com.spartamarket.jwt.UserDetailsImpl;
 import com.spartamarket.service.ProductDocumentService;
@@ -41,7 +42,7 @@ public class ProductDocumentController {
         log.info(productId);
         // productId 이 있으면 MODEL에 데이터를 담아서 반환
         if (productId != null) {
-            ProductResponseDto productResponseDto = productDocumentService.getOneProductDocument(productId);
+            ProductsResponseDto productResponseDto = productDocumentService.getUpdateOneProductDocument(productId);
             model.addAttribute("product", productResponseDto);
         } else {
             model.addAttribute("product", new ProductResponseDto());
@@ -58,7 +59,7 @@ public class ProductDocumentController {
         Boolean isUser = productDocumentService.isUser(userDetails, productId);
         log.info("사용자인지 아닌지: " + isUser);
         try {
-            ProductResponseDto productResponseDto = productDocumentService.getOneProductDocument(productId);
+            ProductsResponseDto productResponseDto = productDocumentService.getOneProductDocument(productId);
             model.addAttribute("isUser", isUser);
             model.addAttribute("productdocument", productResponseDto);
         } catch (NoSuchElementException e) {
@@ -88,21 +89,6 @@ public class ProductDocumentController {
         }
         return ResponseEntity.status(201).body(new StatusResponseDto(returnStatus, HttpStatus.CREATED.value()));
     }
-
-/*    // 게시글 수정 페이지
-    @GetMapping("/uproductdocuments")
-    public String updateProductPage(@RequestParam String productId,
-                                    @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                    Model model) {
-        Boolean isUser = productDocumentService.isUser(userDetails, productId);
-        if (isUser) {
-            ProductResponseDto productResponseDto = productDocumentService.getOneProductDocument(String.valueOf(productId));
-            model.addAttribute("product", productResponseDto);
-            return "updateproductdocument";
-        } else {
-            return "redirect:/api/productdocuments/" + productId;
-        }
-    }*/
 
     // 게시물 수정
     @PutMapping("/productdocuments/{productId}")

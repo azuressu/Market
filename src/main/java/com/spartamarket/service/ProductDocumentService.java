@@ -2,15 +2,14 @@ package com.spartamarket.service;
 
 import com.spartamarket.dto.ProductRequestDto;
 import com.spartamarket.dto.ProductResponseDto;
+import com.spartamarket.dto.ProductsResponseDto;
 import com.spartamarket.entity.ProductDocument;
 import com.spartamarket.entity.User;
 import com.spartamarket.jwt.UserDetailsImpl;
 import com.spartamarket.repository.ProductDocumentRepository;
 import com.spartamarket.repository.UserRepository;
-import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,15 +17,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service
@@ -74,10 +67,17 @@ public class ProductDocumentService {
     }
 
     // 게시글 단건 조회
-    public ProductResponseDto getOneProductDocument(String productId) {
+    public ProductsResponseDto getOneProductDocument(String productId) {
         ProductDocument productDocument = findProductDocument(productId);
         log.info(productDocument.getTitle());
-        return new ProductResponseDto(productDocument);
+        return new ProductsResponseDto(productDocument);
+    }
+
+    // 게시글 수정 내용 불러오기
+    public ProductsResponseDto getUpdateOneProductDocument(String productId) {
+        ProductDocument productDocument = findProductDocument(productId);
+        log.info(productDocument.getTitle());
+        return new ProductsResponseDto(productDocument, "update");
     }
 
     // 게시글 수정
