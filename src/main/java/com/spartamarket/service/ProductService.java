@@ -2,6 +2,7 @@ package com.spartamarket.service;
 
 import com.spartamarket.dto.ProductRequestDto;
 import com.spartamarket.dto.ProductResponseDto;
+import com.spartamarket.dto.ProductsResponseDto;
 import com.spartamarket.entity.Product;
 import com.spartamarket.entity.User;
 import com.spartamarket.jwt.UserDetailsImpl;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,28 +39,22 @@ public class ProductService {
     }
 
     // 게시글 검색
-    public List<ProductResponseDto> getSearchPosts(String title) {
-        log.info("Service 넘어온 검색어: " + title);
+    public Slice<ProductResponseDto> getSearchPosts(String search, Integer page) {
+        log.info("Service 넘어온 검색어: " + search);
 
-        // ElasticSearch 검색
-        List<Product> searchProducts = productRepository.findByTitle(title);
-
-        // 빈 ArrayList 생성
-        ArrayList<ProductResponseDto> products = new ArrayList<>();
-
-        // 결과 내용 ProductResponseDto에 담기
-        for (Product p : searchProducts) {
-            ProductResponseDto productResponseDto = new ProductResponseDto(p);
-            products.add(productResponseDto);
-        }
-
-        return products;
+        Pageable pageable = PageRequest.of(page, 5);
+        // JPA 검색
+        Slice<Product> searchProducts = productRepository.findByTitleContainingOrContentContaining(search, search, pageable);
+        return searchProducts.map(ProductResponseDto::new);
     }
 
     // 게시글 단건 조회
-    public ProductResponseDto getOneProduct(Long productId) {
+    public ProductsResponseDto getOneProduct(Long productId) {
         Product product = findProduct(productId);
-        return new ProductResponseDto(product);
+        ProductsResponseDto productResponseDto = new ProductsResponseDto(product);
+        log.info("title : " + productResponseDto.getTitle());
+        log.info("content : " + productResponseDto.getContent());
+        return productResponseDto;
     }
 
     // 게시글 작성
@@ -69,6 +65,13 @@ public class ProductService {
 
         productRepository.save(product);
         return "/api/products/" + product.getId();
+    }
+
+    // 게시글 수정 글 조회
+    public ProductsResponseDto getUpdateOneProduct(Long productId) {
+        Product product = findProduct(productId);
+        ProductsResponseDto productResponseDto = new ProductsResponseDto(product, "update");
+        return productResponseDto;
     }
 
     // 게시글 수정
@@ -95,6 +98,7 @@ public class ProductService {
             throw new IllegalArgumentException("글 작성자가 아닙니다");
         }
 
+        productRepository.delete(product);
         return "/api/products/";
     }
 
