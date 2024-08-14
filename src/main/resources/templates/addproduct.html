@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -98,7 +98,7 @@
     <div class="bottom-form" >
         <div class="mb-3 title">
             <label for="posttitle" class="form-label">제목</label>
-            <input type="text" name="title" class="form-control" id="posttitle" placeholder="제목을 입력하세요"/>
+            <input type="text" name="title" class="form-control" id="posttitle" placeholder="제목을 입력하세요" th:value="${product.title}"/>
             <div id="validationTitle" class="invalid-feedback">
                 제목을 입력하세요
             </div>
@@ -106,7 +106,7 @@
 
         <div class="mb-3 price">
             <label for="postprice" class="form-label">가격</label>
-            <input type="number" name="price" class="form-control" id="postprice" placeholder="가격을 입력하세요"/>
+            <input type="number" name="price" class="form-control" id="postprice" placeholder="가격을 입력하세요" th:value="${product.price}"/>
             <div id="validationPrice" class="invalid-feedback">
                 가격을 입력하세요
             </div>
@@ -114,15 +114,16 @@
 
         <div class="mb-3 content">
             <label for="postcontent" class="form-label">내용</label>
-            <textarea class="form-control" id="postcontent" name="content" rows="5" placeholder="내용을 입력하세요"></textarea>
+            <textarea class="form-control" id="postcontent" name="content" rows="5" placeholder="내용을 입력하세요" th:text="${product.content}"></textarea>
             <div id="validationContent" class="invalid-feedback">
                 내용을 입력하세요
             </div>
         </div>
 
         <div class="bottom_buttons">
-            <button type="button" class="btn btn-dark productBtn" id="productBtn" onclick="productAdd()">작성하기</button>
-            <button type="button" class="btn btn-dark backBtn" id="backBtn" onclick="gobackToList()">뒤로가기</button>
+            <button type="button" th:if="${product.id} == null" class="btn btn-dark productBtn" id="productAddBtn" onclick="productAdd()">작성하기</button>
+            <button type="button" th:if="${product.id} != null" class="btn btn-dark productBtn" id="productUpdateBtn" th:id="${product.id}" th:onclick="productUpdate(this.getAttribute('id'))">수정하기</button>
+            <button type="button" class="btn btn-dark backBtn" id="backBtn" th:id="${product.id}" th:onclick="gobackToList(this.getAttribute('id'))">뒤로가기</button>
         </div>
     </div>
 
@@ -131,12 +132,43 @@
 </body>
 
 <script>
-    function gobackToList() {
-        window.location.href = "/api/products";
+
+    function gobackToList(productId) {
+        console.log(productId);
+        console.log(productId == null);
+        if (productId == null) {
+            window.location.href = "/api/products";
+        } else {
+            window.location.href = "/api/products/" + productId;
+        }
     }
 
-    // ajax 정보 보내기
     function productAdd() {
+        const title = document.getElementById("posttitle").value;
+        const content = document.getElementById("postcontent").value;
+        const price = document.getElementById("postprice").value;
+        console.log(content);
+
+        const formData = new FormData();
+
+        formData.append("title", title);
+        formData.append("content", content);
+        formData.append("price", price);
+
+        axios({
+            method: "POST",
+            url: "/api/products",
+            headers: {
+                'Content-Type' : "multipart/form-data",
+            },
+            data: formData,
+        }).then((response) => {
+            window.location.href = response.data.message;
+        }).catch((error) => console.log(error.response));
+
+    }
+
+    function productUpdate(productId) {
         const title = document.getElementById("posttitle").value;
         const price = document.getElementById("postprice").value;
         const content = document.getElementById("postcontent").value;
@@ -147,9 +179,11 @@
         formData.append("price", price);
         formData.append("content", content);
 
+        console.log(formData);
+
         axios({
-            method: "POST",
-            url: "/api/products",
+            method: "PUT",
+            url: "/api/products/" + productId,
             headers: {
                 'Content-Type' : "multipart/form-data",
             },
@@ -158,7 +192,6 @@
             console.log(response.data.message);
             window.location.href = response.data.message;
         }).catch((error) => console.log(error.response));
-
     }
 
     // id: posttitle
@@ -168,7 +201,7 @@
         if(isinputTitle){
             this.classList.remove("is-invalid");
             this.classList.add("is-valid");
-        }else{
+        } else {
             this.classList.remove("is-valid");
             this.classList.add("is-invalid");
         }
@@ -176,12 +209,13 @@
 
     // id: postcontent
     document.querySelector("#postcontent").addEventListener("input", function(){
-        const inputTitle = this.value;
-        isinputTitle = inputTitle.length > 0  && inputTitle.trim() != "";
-        if(isinputTitle){
+        const inputContent = this.value;
+        isinputTitle = inputContent.length > 0  && inputContent.trim() != "";
+
+        if (isinputTitle) {
             this.classList.remove("is-invalid");
             this.classList.add("is-valid");
-        }else{
+        } else {
             this.classList.remove("is-valid");
             this.classList.add("is-invalid");
         }
