@@ -99,7 +99,7 @@ public class ProductService {
         }
 
         productRepository.delete(product);
-        return "/api/products/";
+        return "/api/products";
     }
 
     // 사용자 찾기
