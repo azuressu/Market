@@ -226,8 +226,7 @@
                 'Content-Type' : "multipart/form-data",
             },
         }).then((response) => {
-            console.log(response.data.message);
-//            window.location.href = response.data.message;
+            window.location.href = response.data.message;
         }).catch((error) => console.log(error.response));
     }
 
