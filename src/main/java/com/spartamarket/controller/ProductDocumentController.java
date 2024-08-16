@@ -9,6 +9,7 @@ import com.spartamarket.service.ProductDocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -68,12 +69,21 @@ public class ProductDocumentController {
         return "productdocument";
     }
 
-    // 게시글 제목 검색
+    // 게시글 검색 페이지
     @GetMapping("/productdocuments/search")
-    public ResponseEntity<List<ProductResponseDto>> getSearchProductDocuments(@RequestParam String title) {
-        log.info("입력받은 검색어" + title);
-        List<ProductResponseDto> productResponseDtos = productDocumentService.getSearchProductDocuments(title);
-        return ResponseEntity.ok().body(productResponseDtos);
+    public String getSearchProductDocumentsPage(@RequestParam String search) {
+        log.info("입력받은 검색어 : " + search);
+        return "searchproductdocument";
+    }
+
+    // 검색어에 대한 게시글 Slice 해서 반환
+    @GetMapping("/productdocuments/searching")
+    @ResponseBody
+    public Slice<ProductResponseDto> getSearchProductDocuments(@RequestParam String search,
+                                                               @RequestParam(required = false, defaultValue = "0") Integer page) {
+        log.info("입력받은 검색어" + search);
+        Slice<ProductResponseDto> productResponseDtos = productDocumentService.getSearchProductDocuments(search, page);
+        return productResponseDtos;
     }
 
     // 게시물 생성
@@ -118,11 +128,4 @@ public class ProductDocumentController {
         return ResponseEntity.ok().body(new StatusResponseDto(returnStatus, HttpStatus.OK.value()));
     }
 
-    // 물품 전체 삭제
-    @ResponseBody
-    @DeleteMapping("/products")
-    public ResponseEntity<StatusResponseDto> deleteProductDocument() {
-        productDocumentService.deleteAllProductDocument();
-        return ResponseEntity.ok().body(new StatusResponseDto("삭제 완료", HttpStatus.OK.value()));
-    }
 }

@@ -10,9 +10,7 @@ import com.spartamarket.repository.ProductDocumentRepository;
 import com.spartamarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,19 +50,14 @@ public class ProductDocumentService {
     }
 
     // 게시글 검색
-    public List<ProductResponseDto> getSearchProductDocuments(String title) {
+    public Slice<ProductResponseDto> getSearchProductDocuments(String search, Integer page) {
+        Pageable pageable = PageRequest.of(page, 6);
         // 검색
-        List<ProductDocument> searchProductDocuments = productDocumentRepository.findByTitle(title);
+        Page<ProductDocument> searchProductDocuments = productDocumentRepository.findByTitleContainingOrContentContaining(search, search, pageable);
 
-        // 빈 리스트 생성
-        ArrayList<ProductResponseDto> productResponseDtos = new ArrayList<>();
+        List<ProductResponseDto> searchPD = searchProductDocuments.getContent().stream().map(ProductResponseDto::new).collect(Collectors.toList());
 
-        for (ProductDocument p : searchProductDocuments) {
-            ProductResponseDto productResponseDto = new ProductResponseDto(p);
-            productResponseDtos.add(productResponseDto);
-        }
-
-        return productResponseDtos;
+        return new SliceImpl<>(searchPD, pageable, searchProductDocuments.hasNext());
     }
 
     // 게시글 단건 조회
