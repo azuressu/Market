@@ -56,8 +56,7 @@ public class ProductController {
 
     // 게시글 제목 및 내용 검색
     @GetMapping("/products/search")
-    public String getSearchProductsPage(@RequestParam String search,
-                                    @RequestParam(required = false, defaultValue = "0") Integer page) {
+    public String getSearchProductsPage(@RequestParam String search) {
         log.info("입력받은 검색어: " + search);
         return "searchproduct";
     }

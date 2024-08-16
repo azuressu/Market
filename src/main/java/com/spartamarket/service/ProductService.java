@@ -42,7 +42,7 @@ public class ProductService {
     public Slice<ProductResponseDto> getSearchPosts(String search, Integer page) {
         log.info("Service 넘어온 검색어: " + search);
 
-        Pageable pageable = PageRequest.of(page, 5);
+        Pageable pageable = PageRequest.of(page, 6);
         // JPA 검색
         Slice<Product> searchProducts = productRepository.findByTitleContainingOrContentContaining(search, search, pageable);
         return searchProducts.map(ProductResponseDto::new);
