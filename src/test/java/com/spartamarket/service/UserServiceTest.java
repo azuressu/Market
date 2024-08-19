@@ -1,8 +1,10 @@
 package com.spartamarket.service;
 
 import com.spartamarket.dto.JoinRequestDto;
+import com.spartamarket.entity.User;
+import com.spartamarket.entity.UserRoleEnum;
+import com.spartamarket.jwt.JwtUtil;
 import com.spartamarket.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +45,8 @@ class UserServiceTest {
 
     private UserService userService;
 
+    private JwtUtil jwtUtil;
+
     @Value("${spring.admin.key}")
     private String adminToken;
 
@@ -50,7 +58,7 @@ class UserServiceTest {
                 .apply(springSecurity())
                 .build();
 
-        userService = new UserService(userRepository, passwordEncoder);
+        userService = new UserService(userRepository, passwordEncoder, jwtUtil);
     }
     
     @Test
@@ -63,17 +71,11 @@ class UserServiceTest {
         joinRequestDto.setPassword("highlight00");
         joinRequestDto.setNickname("light");
 
-        // String password = passwordEncoder.encode("highlight00");
-        // User user = new User(joinRequestDto, password, UserRoleEnum.USER);
-
         // when
         userService.joinSpartaMarket(joinRequestDto);
-        // when(userRepository.findByUsername(any(String.class))).thenReturn(Optional.of(user));
 
         // then
         System.out.println("일반 회원가입 성공");
-        // assertEquals(user.getUsername(),"highlight@naver.com");
-        // assertEquals(user.getNickname(),"light");
     }
 
     @Test
@@ -89,7 +91,7 @@ class UserServiceTest {
         joinRequestDto.setAdminToken(adminToken);
 
         // when
-        userService.setAdminToken(adminToken); // 결국 method를 추가해서 완료
+        userService.setAdminToken(adminToken);
         userService.joinSpartaMarket(joinRequestDto);
 
         // then
@@ -102,20 +104,17 @@ class UserServiceTest {
         // given
         JoinRequestDto joinRequestDto = new JoinRequestDto();
 
-        joinRequestDto.setUsername("hig");
+        joinRequestDto.setUsername("hi");
         joinRequestDto.setPassword("lightlight");
         joinRequestDto.setNickname("light");
 
-        // when & then
-        /*Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        // when
+        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.joinSpartaMarket(joinRequestDto);
-        });*/
-        try {
-            userService.joinSpartaMarket(joinRequestDto);
-        } catch (IllegalArgumentException e) {
-            Assertions.assertEquals("아이디 형식에 맞지 않습니다.", e.getMessage());
-        }
+        });
 
+        // then
+        assertEquals("아이디 형식에 맞지 않습니다.", exception.getMessage());
     }
 
     @Test
@@ -128,13 +127,13 @@ class UserServiceTest {
         joinRequestDto.setPassword("hihi");
         joinRequestDto.setNickname("light");
 
-        // when & then
-        try {
+        // when
+        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.joinSpartaMarket(joinRequestDto);
-        } catch (IllegalArgumentException e) {
-            Assertions.assertEquals("비밀번호 형식에 맞지 않습니다.", e.getMessage());
-        }
+        });
 
+        // then
+        assertEquals("비밀번호 형식에 맞지 않습니다.", exception.getMessage());
     }
 
     @Test
@@ -147,18 +146,40 @@ class UserServiceTest {
         joinRequestDto.setPassword("adminadmin");
         joinRequestDto.setNickname("admin");
         joinRequestDto.setAdmin(true);
-        joinRequestDto.setAdminToken(adminToken);
-
-        // when & then
-        /*Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            userService.joinSpartaMarket(joinRequestDto);
-        });*/
+        joinRequestDto.setAdminToken("아무거나넣기");
         userService.setAdminToken(adminToken);
-        try {
+
+        // when
+        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.joinSpartaMarket(joinRequestDto);
-        } catch (IllegalArgumentException e) {
-            Assertions.assertEquals("잘못된 Admin Token", e.getMessage());
-        }
+        });
+
+        // then
+        assertEquals("잘못된 Admin Token", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원가입 실패 - 중복된 사용자 이름")
+    public void Duplicatied_Username() {
+        // given
+        JoinRequestDto joinRequestDto = new JoinRequestDto();
+
+        joinRequestDto.setUsername("highlight");
+        joinRequestDto.setPassword("highlight00");
+        joinRequestDto.setNickname("light");
+
+        String password = passwordEncoder.encode(joinRequestDto.getPassword());
+
+        User newUser = new User(joinRequestDto, password, UserRoleEnum.USER);
+
+        // when
+        when(userRepository.existsByUsername(any(String.class))).thenReturn(true);
+        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.joinSpartaMarket(joinRequestDto);
+        });
+
+        // then
+        assertEquals("중복된 사용자 이름", exception.getMessage());
     }
 
 
