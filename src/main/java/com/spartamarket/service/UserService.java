@@ -5,7 +5,6 @@ import com.spartamarket.entity.User;
 import com.spartamarket.entity.UserRoleEnum;
 import com.spartamarket.jwt.JwtUtil;
 import com.spartamarket.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
