@@ -112,7 +112,7 @@ public class ProductDocumentService {
         User user = findUser(userDetails.getUsername());
         ProductDocument productDocument = findProductDocument(productId);
 
-        if (!user.getId().equals(productDocument.getUser().getId())) {
+        if (!user.getUsername().equals(productDocument.getUser().getUsername())) {
             throw new IllegalArgumentException("글 작성자가 아닙니다");
         }
 
@@ -132,7 +132,7 @@ public class ProductDocumentService {
         User user = findUser(userDetails.getUsername());
         ProductDocument productDocument = findProductDocument(productId);
 
-        if (!user.getId().equals(productDocument.getUser().getId())) {
+        if (!user.getUsername().equals(productDocument.getUser().getUsername())) {
             throw new IllegalArgumentException("글 작성자가 아닙니다");
         }
 

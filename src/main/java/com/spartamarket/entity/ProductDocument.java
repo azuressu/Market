@@ -11,7 +11,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document(indexName = "product")
+@Document(indexName = "productdocuments")
 public class ProductDocument extends ElasticsearchTimestamped {
 
     @Id
