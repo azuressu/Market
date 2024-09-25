@@ -1,10 +1,10 @@
-package com.spartamarket;
+package com.mymarket;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SpartamarketApplicationTests {
+class MymarketApplicationTests {
 
 	@Test
 	void contextLoads() {

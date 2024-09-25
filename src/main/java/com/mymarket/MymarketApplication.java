@@ -1,4 +1,4 @@
-package com.spartamarket;
+package com.mymarket;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing
-public class SpartamarketApplication {
+public class MymarketApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpartamarketApplication.class, args);
+		SpringApplication.run(MymarketApplication.class, args);
 	}
 
 }
